@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+/* ---------- Design tokens (Windows 11 dark by default) ---------- */
+:root {
+  --accent: #4cc2ff;
+  --accent-strong: #0078d4;
+  --accent-text: #0b1a26;
+
+  --mica: rgba(32, 32, 34, 0.94);
+  --acrylic: rgba(36, 36, 40, 0.76);
+  --surface: #2b2b2e;
+  --surface-2: #333337;
+  --surface-3: #3c3c41;
+  --hover: rgba(255, 255, 255, 0.06);
+  --active: rgba(255, 255, 255, 0.1);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --fg: #ffffff;
+  --fg-2: rgba(255, 255, 255, 0.78);
+  --fg-3: rgba(255, 255, 255, 0.55);
+  --shadow-win: 0 24px 60px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --taskbar-h: 48px;
+}
+:root[data-theme="light"] {
+  --accent-strong: #005fb8;
+  --accent-text: #ffffff;
+  --mica: rgba(243, 243, 243, 0.95);
+  --acrylic: rgba(249, 249, 249, 0.82);
+  --surface: #f9f9f9;
+  --surface-2: #f0f0f0;
+  --surface-3: #e6e6e6;
+  --hover: rgba(0, 0, 0, 0.045);
+  --active: rgba(0, 0, 0, 0.08);
+  --line: rgba(0, 0, 0, 0.07);
+  --line-strong: rgba(0, 0, 0, 0.14);
+  --fg: #1b1b1b;
+  --fg-2: rgba(0, 0, 0, 0.72);
+  --fg-3: rgba(0, 0, 0, 0.5);
+  --shadow-win: 0 24px 60px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.14);
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+@theme inline {
+  --font-sans: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", var(--font-inter), system-ui, sans-serif;
+  --font-mono: "Cascadia Code", "Cascadia Mono", var(--font-jetbrains), Consolas, monospace;
+
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-text: var(--accent-text);
+  --color-mica: var(--mica);
+  --color-acrylic: var(--acrylic);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-hover: var(--hover);
+  --color-active: var(--active);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-java: #f89820;
+  --color-java-dark: #5382a1;
+  --color-python: #ffd43b;
+  --color-python-blue: #3b78c4;
+
+  --shadow-win: var(--shadow-win);
+  --shadow-pop: var(--shadow-pop);
+
+  --animate-win-open: win-open 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-win-min: win-min 0.22s ease-in both;
+  --animate-win-close: win-close 0.16s ease-in both;
+  --animate-fly-up: fly-up 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-fade: fade-in 0.35s ease both;
+  --animate-toast-in: toast-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-toast-out: toast-out 0.25s ease-in both;
+  --animate-spin-dots: spin 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  --animate-bob: bob 2.4s ease-in-out infinite;
+  --animate-pulse-dot: pulse-dot 2s infinite;
+
+  @keyframes win-open { from { opacity: 0; transform: scale(0.92) translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes win-min { to { opacity: 0; transform: scale(0.7) translateY(60vh); } }
+  @keyframes win-close { to { opacity: 0; transform: scale(0.94); } }
+  @keyframes fly-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes toast-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+  @keyframes toast-out { to { opacity: 0; transform: translateX(40px); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes pulse-dot { 0%, 100% { box-shadow: 0 0 0 3px rgba(108, 203, 95, 0.25); } 50% { box-shadow: 0 0 0 7px rgba(108, 203, 95, 0.05); } }
+}
+
+/* ---------- Base ---------- */
+html, body { height: 100%; margin: 0; overflow: hidden; }
+body { font-family: var(--font-sans); font-size: 14px; color: var(--fg); background: #000; -webkit-font-smoothing: antialiased; user-select: none; }
+button { cursor: pointer; }
+@layer base {
+  svg { width: 1em; height: 1em; flex-shrink: 0; }
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.35); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.6); background-clip: padding-box; border: 3px solid transparent; }
+
+/* ---------- Utilities ---------- */
+@utility glass { backdrop-filter: blur(40px) saturate(170%); -webkit-backdrop-filter: blur(40px) saturate(170%); }
+@utility glass-sm { backdrop-filter: blur(24px) saturate(140%); -webkit-backdrop-filter: blur(24px) saturate(140%); }
+@utility text-shadow-desktop { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.5); }
+@utility icon-shadow { filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45)); }
+@utility selectable { user-select: text; }
+@utility stroke-icon { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Wallpapers (pure CSS, no image assets) ---------- */
+.wp-bloom { background:
+  radial-gradient(1200px 700px at 12% 90%, #1e6bd6 0%, transparent 55%),
+  radial-gradient(900px 600px at 85% 15%, #7b4dff 0%, transparent 55%),
+  radial-gradient(700px 500px at 60% 70%, #22b1ff 0%, transparent 60%),
+  radial-gradient(500px 400px at 30% 20%, #ff6ec7 0%, transparent 60%),
+  linear-gradient(160deg, #0a1633, #0d2a5c 45%, #0a1633); }
+.wp-java { background:
+  radial-gradient(1000px 700px at 80% 85%, #f89820 0%, transparent 55%),
+  radial-gradient(900px 600px at 15% 20%, #5382a1 0%, transparent 55%),
+  radial-gradient(600px 500px at 55% 45%, #c2410c 0%, transparent 60%),
+  linear-gradient(160deg, #120b05, #2a1408 50%, #0b0d12); }
+.wp-python { background:
+  radial-gradient(1000px 700px at 15% 80%, #3b78c4 0%, transparent 55%),
+  radial-gradient(800px 600px at 85% 20%, #ffd43b 0%, transparent 55%),
+  radial-gradient(600px 500px at 60% 60%, #1f4e8c 0%, transparent 60%),
+  linear-gradient(160deg, #06101f, #0e2444 55%, #0a0f1a); }
+.wp-dark { background:
+  radial-gradient(900px 600px at 70% 30%, #23262f 0%, transparent 60%),
+  radial-gradient(700px 500px at 20% 80%, #1c1f27 0%, transparent 60%),
+  linear-gradient(160deg, #0d0f14, #15171d); }
+.wp-light { background:
+  radial-gradient(1200px 700px at 15% 85%, #9fd0ff 0%, transparent 55%),
+  radial-gradient(900px 600px at 85% 20%, #d5c2ff 0%, transparent 55%),
+  radial-gradient(700px 500px at 55% 60%, #7cc9ff 0%, transparent 60%),
+  linear-gradient(160deg, #dbeeff, #b9d6ff 50%, #e6dbff); }
+
+/* Boot spinner dots */
+.spinner i { position: absolute; inset: 0; animation: var(--animate-spin-dots); }
+.spinner i::after { content: ""; position: absolute; top: 0; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #fff; }
+.spinner i:nth-child(2) { animation-delay: 0.08s; }
+.spinner i:nth-child(3) { animation-delay: 0.16s; }
+.spinner i:nth-child(4) { animation-delay: 0.24s; }
+.spinner i:nth-child(5) { animation-delay: 0.32s; }
+.spinner i:nth-child(6) { animation-delay: 0.4s; }
+
+/* Syntax highlighting tokens (VS Code Dark+) */
+.tk-kw { color: #569cd6; } .tk-ctl { color: #c586c0; } .tk-str { color: #ce9178; } .tk-cm { color: #6a9955; font-style: italic; }
+.tk-num { color: #b5cea8; } .tk-ty { color: #4ec9b0; } .tk-fn { color: #dcdcaa; } .tk-ann { color: #dcdcaa; }
+.tk-self { color: #9cdcfe; } .tk-h { color: #569cd6; font-weight: 700; } .tk-b { color: #ce9178; font-weight: 700; } .tk-code { color: #ce9178; }
+
