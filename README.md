@@ -81,12 +81,11 @@ Pages is static hosting, so the guestbook API route is left out of that build. T
 2. In the project: **SQL Editor → New query**, paste the contents of `supabase/guestbook.sql`, click **Run**.
 3. Copy the **Project URL** (`https://<project-ref>.supabase.co`) and, from **Project Settings → API Keys**, the
    **publishable** key (or the legacy **anon** key; either works).
-4. In the GitHub repo: **Settings → Secrets and variables → Actions → Variables → New repository variable**, add
-   `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-5. Push any commit (or re-run the workflow). Messages now go to the `guestbook` table; read or delete them in
-   Supabase **Table Editor**.
+4. Put both values in `.env.production` as `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   (this file is committed; every production build, including GitHub Pages, reads it).
+5. Push. Messages now go to the `guestbook` table; read or delete them in Supabase **Table Editor**.
 
-The anon key is safe to publish: visitors can only read messages and insert the name, rating and message
+The publishable / anon key is safe to publish: visitors can only read messages and insert the name, rating and message
 columns (never edit, delete, or set the date), and a flood guard allows at most 5 new messages a minute and
 30 an hour. Changed `supabase/guestbook.sql`? Run it again; it is safe to re-run.
 

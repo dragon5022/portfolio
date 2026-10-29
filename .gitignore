@@ -44,5 +44,6 @@ next-env.d.ts
 /data/
 
 
-# keep the env template
+# keep the env template and the public production settings
 !.env.example
+!.env.production
