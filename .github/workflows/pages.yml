@@ -25,11 +25,14 @@ jobs:
           cache: npm
       - run: npm ci
       # Pages is static hosting: the guestbook API route cannot run here, so it is left out of this build.
-      # The guestbook falls back to the visitor's browser storage, or set NEXT_PUBLIC_GUESTBOOK_API to an external API.
+      # The guestbook then uses Supabase (NEXT_PUBLIC_SUPABASE_*), else NEXT_PUBLIC_GUESTBOOK_API, else the visitor's browser storage.
       - run: rm -rf src/app/api
       - run: npm run build
         env:
           GITHUB_PAGES: "true"
+          # Guestbook storage for the static site (repository variables, Settings → Secrets and variables → Actions → Variables)
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_GUESTBOOK_API: ${{ vars.NEXT_PUBLIC_GUESTBOOK_API }}
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3

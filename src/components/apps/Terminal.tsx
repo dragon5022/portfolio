@@ -5,6 +5,7 @@ import { PORTFOLIO, LANG_META, type Lang } from "@/data/portfolio";
 import { useOS } from "@/lib/store";
 import { APP_META, type AppId } from "@/lib/apps";
 import { AppIcons } from "@/components/icons";
+import { fetchRepos, fmtMonth, isGitHubLogin } from "@/lib/github";
 
 type Line = ReactNode;
 const C = {
@@ -22,7 +23,7 @@ const LOGO = String.raw`
 
 export default function Terminal() {
   const { state, dispatch, openApp } = useOS();
-  const user = state.user.handle || "dev";
+  const user = state.visitor?.login || state.user.handle || "dev";
   const [cwd, setCwd] = useState("~");
   const [lines, setLines] = useState<Line[]>(() => [
     <div key="w1">Portfolio Terminal [Version 11.0.{new Date().getFullYear()}]</div>,
@@ -63,8 +64,10 @@ export default function Terminal() {
           "  portfolio        Open the Portfolio app (screenshots + flows)",
           "  projects         List projects        (projects web | game | ai | java | python)",
           "  project <id>     Project details",
-          "  contact          How to reach me (email, WhatsApp, GitHub)",
+          "  contact          How to reach me (email, GitHub)",
           "  guestbook        Leave a public message / review",
+          "  whoami           Your GitHub profile (from sign-in)",
+          "  repos [user]     Recent public GitHub repos (yours by default)",
           "  open <app>       Open an app: " + (Object.keys(APP_META) as AppId[]).join(", "),
           "  ls / cd / cat    Browse the fake filesystem",
           "  java -version    python --version    mvn / pip / git ...",
@@ -107,7 +110,7 @@ export default function Terminal() {
         push(<span className={C.dim}>Opening Portfolio…</span>);
         break;
       case "contact":
-        push(`  Email:    ${PORTFOLIO.email}`, `  WhatsApp: ${PORTFOLIO.whatsappDisplay}  (https://wa.me/${PORTFOLIO.whatsapp.replace(/\D/g, "")})`, `  GitHub:   ${PORTFOLIO.github}`, ...(PORTFOLIO.linkedin ? [`  LinkedIn: ${PORTFOLIO.linkedin}`] : []));
+        push(`  Email:    ${PORTFOLIO.email}`, `  GitHub:   ${PORTFOLIO.github}`, ...(PORTFOLIO.linkedin ? [`  LinkedIn: ${PORTFOLIO.linkedin}`] : []));
         break;
       case "open": {
         const id = arg.toLowerCase() as AppId;
@@ -139,7 +142,38 @@ export default function Terminal() {
         else push(<span className={C.err}>cat: {arg || "file"}: No such file</span>);
         break;
       }
-      case "whoami": push(user); break;
+      case "whoami": {
+        const v = state.visitor;
+        if (!v) { push(user); break; }
+        const where = [v.company, v.location].filter(Boolean).join(" · ");
+        push(
+          <span><span className={C.ok}>{v.login}</span>{v.name !== v.login && ` (${v.name})`}</span>,
+          ...(v.bio ? [`  ${v.bio}`] : []),
+          ...(where ? [`  ${where}`] : []),
+          ...(v.verified ? [`  Followers ${v.followers}  ·  Following ${v.following}  ·  Public repos ${v.publicRepos}`] : [<span key="unverified" className={C.dim}>  GitHub was unreachable at sign-in, so only your username is known.</span>]),
+          ...(v.joined ? [`  On GitHub since ${fmtMonth(v.joined)}`] : []),
+          `  ${v.url}`,
+          <span className={C.dim}>Tip: `repos` lists your public repositories.</span>,
+        );
+        break;
+      }
+      case "repos": {
+        const who = (args[0] ?? state.visitor?.login ?? "").replace(/^@/, "");
+        if (!isGitHubLogin(who)) { push("usage: repos [github-username]"); break; }
+        push(<span className={C.dim}>Fetching public repos for {who}…</span>);
+        fetchRepos(who).then(
+          (list) => {
+            if (!list) push(<span className={C.err}>No GitHub user called &quot;{who}&quot;.</span>);
+            else if (!list.length) push(`${who} has no public repositories yet.`);
+            else push(
+              ...list.map((r) => <span key={r.name}><span className={C.accent}>{r.name.padEnd(28)}</span> <span className={C.warn}>★{String(r.stars).padStart(6)}</span>  {(r.language ?? "").padEnd(12)} {r.description ?? ""}</span>),
+              <span className={C.dim}>https://github.com/{who}?tab=repositories</span>,
+            );
+          },
+          (e: Error) => push(<span className={C.err}>{e.message}</span>),
+        );
+        break;
+      }
       case "date": push(new Date().toString()); break;
       case "echo": push(arg); break;
       case "history": push(...history.slice().reverse().map((h, i) => `  ${i + 1}  ${h}`)); break;
@@ -159,10 +193,10 @@ export default function Terminal() {
       case "pytest": push(<span className={C.ok}>============ 128 passed, 3 skipped in 4.21s ============</span>); break;
       case "git":
         if (args[0] === "status") push("On branch main", "Your branch is up to date with 'origin/main'.", <span className={C.ok}>nothing to commit, working tree clean</span>);
-        else if (args[0] === "log") push(<span className={C.warn}>a1b2c3d</span>, "  feat: ship portfolio OS in Next.js + Tailwind", <span className={C.warn}>9f8e7d6</span>, "  perf: virtual threads in LedgerFlow hot path");
+        else if (args[0] === "log") push(<span className={C.warn}>a1b2c3d</span>, "  feat: ship portfolio OS in Next.js + Tailwind", <span className={C.warn}>9f8e7d6</span>, "  perf: virtual threads in CommerceCore checkout");
         else push("usage: git [status|log]");
         break;
-      case "docker": push("CONTAINER ID   IMAGE                 STATUS", "3f1a2b9c0d4e   ledgerflow:latest     Up 3 days", "7c6d5e4f3a2b   pyquery-lab:latest    Up 3 days"); break;
+      case "docker": push("CONTAINER ID   IMAGE                 STATUS", "3f1a2b9c0d4e   commercecore:latest   Up 3 days", "7c6d5e4f3a2b   auto-writer:latest    Up 3 days"); break;
       case "theme":
         if (arg === "dark" || arg === "light") { dispatch({ type: "THEME", theme: arg }); push(<span className={C.dim}>Theme set to {arg}.</span>); }
         else push("usage: theme dark|light");
@@ -211,7 +245,7 @@ export default function Terminal() {
     else if (e.key === "l" && e.ctrlKey) { e.preventDefault(); setLines([]); }
     else if (e.key === "Tab") {
       e.preventDefault();
-      const cmds = ["help", "about", "skills", "portfolio", "projects", "project", "contact", "open", "neofetch", "clear", "theme", "java -version", "python --version"];
+      const cmds = ["help", "about", "skills", "portfolio", "projects", "project", "contact", "open", "whoami", "repos", "neofetch", "clear", "theme", "java -version", "python --version"];
       const m = cmds.find((c) => c.startsWith(input));
       if (m) setInput(m);
     }

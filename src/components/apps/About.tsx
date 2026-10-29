@@ -11,11 +11,11 @@ export default function About() {
   const count = (lang: keyof typeof LANG_META) => PORTFOLIO.projects.filter((p) => p.lang === lang).length;
 
   const areas = [
-    { icon: AppIcons.web, title: "Web platforms", text: `Next.js, React and WebGL sites for studios, startups and media. ${count("web")} featured.`, chips: ["Next.js", "React", "Three.js"], lang: "web" as const },
-    { icon: AppIcons.game, title: "Apps & mobile games", text: `Real-money casino and card games, React Native and Unity apps. ${count("game")} featured, 12 shipped.`, chips: ["Unity", "React Native", "Pix"], lang: "game" as const },
-    { icon: AppIcons.ai, title: "AI tooling", text: "Creator of the AI Token Router: 40–70% fewer tokens on any LLM API.", chips: ["LLM APIs", "Semantic cache", "Routing"], lang: "ai" as const },
+    { icon: AppIcons.web, title: "Web platforms", text: `E-commerce, hotel and local-business sites with booking, maps and CRM. ${count("web")} featured.`, chips: ["WordPress", "Next.js", "Google Maps"], lang: "web" as const },
+    { icon: AppIcons.game, title: "Apps & mobile games", text: `Real-money domino on web and mobile, and a soccer management game on the App Store. ${count("game")} featured, 12 shipped.`, chips: ["React Native", "iOS", "Pix"], lang: "game" as const },
+    { icon: AppIcons.ai, title: "AI tooling", text: "Creator of the AI Token Router (40–70% fewer tokens on any LLM API) and an OCR pipeline for invoices and forms.", chips: ["LLM APIs", "OCR", "Routing"], lang: "ai" as const },
     { icon: AppIcons.java, title: "Java", text: `Spring Boot services, Kafka pipelines, JVM tuning. ${count("java")} featured.`, chips: ["Spring Boot", "Hibernate", "Kafka"], lang: "java" as const },
-    { icon: AppIcons.python, title: "Python", text: `FastAPI backends, data pipelines, automation and MLOps. ${count("python")} featured.`, chips: ["FastAPI", "Pandas", "pytest"], lang: "python" as const },
+    { icon: AppIcons.python, title: "Python", text: `FastAPI backends, background workers, WordPress automation and routing. ${count("python")} featured.`, chips: ["FastAPI", "Celery", "pytest"], lang: "python" as const },
   ];
 
   return (
@@ -66,7 +66,6 @@ export default function About() {
       <div className="mt-6 flex flex-wrap gap-2">
         <Btn variant="primary" onClick={() => openApp("portfolio")}><AppIcons.portfolio className="h-4 w-4" /> See my portfolio</Btn>
         <LinkBtn href={PORTFOLIO.github}><AppIcons.github className="h-4 w-4" /> GitHub</LinkBtn>
-        <LinkBtn href={`https://wa.me/${PORTFOLIO.whatsapp.replace(/\D/g, "")}`}><AppIcons.whatsapp className="h-4 w-4" /> WhatsApp</LinkBtn>
         {PORTFOLIO.linkedin && <LinkBtn href={PORTFOLIO.linkedin}><AppIcons.linkedin className="h-4 w-4" /> LinkedIn</LinkBtn>}
       </div>
     </Page>

@@ -10,8 +10,19 @@ import { GUESTBOOK_API } from "@/lib/paths";
 export interface Entry { id: string; name: string; rating: number; message: string; createdAt: string }
 
 /* ---------- shared data store (one fetch, shared by panel + dialog) ----------
-   Talks to the guestbook API. If no API is reachable (static hosting such as GitHub Pages
-   without NEXT_PUBLIC_GUESTBOOK_API), it falls back to this browser's localStorage. */
+   Storage priority:
+   1. Supabase table (NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY) — works on static hosting like GitHub Pages
+   2. the guestbook API route (or NEXT_PUBLIC_GUESTBOOK_API)
+   3. this browser's localStorage, when neither is reachable */
+const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPA_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supaOn = Boolean(SUPA_URL && SUPA_KEY);
+// legacy anon keys are JWTs and also go in Authorization; new publishable keys (sb_publishable_…) go in apikey only
+const supaHeaders: Record<string, string> = { apikey: SUPA_KEY ?? "", "Content-Type": "application/json", ...(SUPA_KEY?.startsWith("eyJ") ? { Authorization: `Bearer ${SUPA_KEY}` } : {}) };
+const SUPA_TABLE = `${SUPA_URL}/rest/v1/guestbook`;
+type SupaRow = { id: string; name: string; rating: number; message: string; created_at: string };
+const fromRow = (r: SupaRow): Entry => ({ id: r.id, name: r.name, rating: r.rating, message: r.message, createdAt: r.created_at });
+
 let cache: Entry[] | null = null;
 let loading: Promise<void> | null = null;
 let localMode = false;
@@ -35,6 +46,14 @@ function useEntries() {
   const load = useCallback(() => {
     loading ??= (async () => {
       try {
+        if (supaOn) {
+          const res = await fetch(`${SUPA_TABLE}?select=id,name,rating,message,created_at&order=created_at.desc&limit=200`, { headers: supaHeaders, cache: "no-store" });
+          if (!res.ok) throw new Error(`Guestbook storage error (${res.status}).`);
+          localMode = false;
+          publish(((await res.json()) as SupaRow[]).map(fromRow));
+          setError(null);
+          return;
+        }
         const res = await fetch(GUESTBOOK_API, { cache: "no-store" });
         if (res.status === 404 || res.status === 405) throw Object.assign(new Error("no api"), { noApi: true });
         if (!res.ok) throw new Error(await apiError(res));
@@ -42,7 +61,8 @@ function useEntries() {
         publish(((await res.json()) as { entries: Entry[] }).entries);
         setError(null);
       } catch (err) {
-        const noApi = (err as { noApi?: boolean }).noApi || err instanceof TypeError; // 404 or network failure
+        // 404 or network failure on the API route; a Supabase outage is reported instead, since posts still go to Supabase
+        const noApi = !supaOn && ((err as { noApi?: boolean }).noApi || err instanceof TypeError);
         if (noApi) { localMode = true; publish(readLocal()); setError(null); }
         else { setError((err as Error).message); if (!cache) publish([]); }
       } finally {
@@ -57,10 +77,18 @@ function useEntries() {
 
 /** post a new entry; returns the saved entry */
 async function postEntry(form: { name: string; rating: number; message: string; website: string }): Promise<Entry> {
+  const name = form.name.trim().slice(0, 40), message = form.message.trim().slice(0, 500);
+  if (!name) throw new Error("Please add your name.");
+  if (message.length < 3) throw new Error("Please write a message (at least 3 characters).");
+  if (form.website.trim()) return { id: "bot", name, rating: form.rating, message, createdAt: new Date().toISOString() }; // honeypot
+  if (supaOn) {
+    const res = await fetch(SUPA_TABLE, { method: "POST", headers: { ...supaHeaders, Prefer: "return=representation" }, body: JSON.stringify({ name, rating: form.rating, message }) });
+    if (!res.ok) throw new Error(res.status === 429 ? "Too many messages right now, please try again later." : `Could not save your message (${res.status}).`);
+    const [row] = (await res.json()) as SupaRow[];
+    if (!row) throw new Error("Could not save your message.");
+    return fromRow(row);
+  }
   if (localMode) {
-    const name = form.name.trim().slice(0, 40), message = form.message.trim().slice(0, 500);
-    if (!name) throw new Error("Please add your name.");
-    if (message.length < 3) throw new Error("Please write a message (at least 3 characters).");
     const entry: Entry = { id: crypto.randomUUID(), name, rating: form.rating, message, createdAt: new Date().toISOString() };
     const next = [entry, ...readLocal()];
     writeLocal(next);
@@ -136,17 +164,19 @@ export function GuestbookPanel() {
 export function GuestbookDialog() {
   const { state, dispatch, notify } = useOS();
   const { entries, reload, isLocal } = useEntries();
-  const [form, setForm] = useState({ name: "", rating: 5, message: "", website: "" });
+  const visitorName = state.visitor?.name.slice(0, 40) ?? ""; // pre-filled from the GitHub sign-in
+  const [form, setForm] = useState({ name: visitorName, rating: 5, message: "", website: "" });
   const [hover, setHover] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
   const open = state.guestbookOpen;
 
   useEffect(() => {
     if (!open) return;
-    const t = setTimeout(() => nameRef.current?.focus(), 120);
+    const t = setTimeout(() => (nameRef.current?.value ? messageRef.current : nameRef.current)?.focus(), 120);
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") dispatch({ type: "GUESTBOOK", open: false }); };
     window.addEventListener("keydown", onKey);
     return () => { clearTimeout(t); window.removeEventListener("keydown", onKey); };
@@ -160,10 +190,12 @@ export function GuestbookDialog() {
     if (busy) return;
     setBusy(true); setError(null);
     try {
-      await postEntry(form);
-      if (!isLocal) await reload();
+      const saved = await postEntry(form);
+      if (isLocal) { /* already published */ }
+      else if (supaOn) publish([saved, ...(cache ?? [])]);
+      else await reload();
       setDone(true);
-      setForm({ name: "", rating: 5, message: "", website: "" });
+      setForm({ name: visitorName, rating: 5, message: "", website: "" });
       notify("Thank you!", isLocal ? "Your message was saved in this browser." : `Your message to ${PORTFOLIO.name} was saved.`, "contact");
     } catch (err) {
       setError((err as Error).message);
@@ -214,7 +246,7 @@ export function GuestbookDialog() {
                   <span className="ml-2 text-xs text-fg-3">{["", "Poor", "Fair", "Good", "Great", "Excellent"][hover || form.rating]}</span>
                 </div>
                 <label className="mt-3 block text-xs text-fg-2">Message
-                  <textarea required minLength={3} maxLength={500} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="What was it like working with me? Or just say hi." className={`${field} mt-1.5 min-h-[120px] resize-y`} />
+                  <textarea ref={messageRef} required minLength={3} maxLength={500} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="What was it like working with me? Or just say hi." className={`${field} mt-1.5 min-h-[120px] resize-y`} />
                 </label>
                 <div className="mt-1 text-right text-[11px] text-fg-3">{form.message.length}/500</div>
                 {/* honeypot */}

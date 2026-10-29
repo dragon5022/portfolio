@@ -2,12 +2,13 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import Image from "next/image";
-import { PORTFOLIO, LANG_META, type Lang, type Project } from "@/data/portfolio";
+import { PORTFOLIO, LANG_META, linkLabel, type Lang, type Project } from "@/data/portfolio";
 import { useOS } from "@/lib/store";
 import { AppIcons, Glyph } from "@/components/icons";
 import type { AppId } from "@/lib/apps";
 import type { AppProps } from "./index";
 import { Btn, Chip, LinkBtn } from "./ui";
+import FlowDiagram from "./FlowDiagram";
 import { asset } from "@/lib/paths";
 
 /* ---------- Virtual file system ---------- */
@@ -196,13 +197,15 @@ export default function FileExplorer({ win }: AppProps) {
 function ProjectPreview({ p }: { p: Project }) {
   const { openApp } = useOS();
   const Icon = AppIcons[LANG_META[p.lang].icon];
-  const sample = p.flow ? "token_router.py" : Object.entries(PORTFOLIO.codeSamples).find(([, s]) => s.lang === p.lang)?.[0];
+  const sample = p.code ?? Object.entries(PORTFOLIO.codeSamples).find(([, s]) => s.lang === p.lang)?.[0];
   return (
     <aside className="selectable hidden w-[300px] shrink-0 overflow-auto border-l border-line p-4 text-xs lg:block">
       {p.image ? (
         <div className="mb-2 overflow-hidden rounded-md border border-line-strong bg-surface-3">
           <Image src={asset(p.image)} alt={`${p.name} screenshot`} width={1440} height={900} sizes="268px" className="h-auto w-full" />
         </div>
+      ) : p.flow ? (
+        <div className="mb-2 rounded-md border border-line-strong bg-surface-2 p-2"><FlowDiagram id={p.flow} /></div>
       ) : (
         <Icon className="h-16 w-16" />
       )}
@@ -216,6 +219,7 @@ function ProjectPreview({ p }: { p: Project }) {
       <div className="flex flex-wrap gap-1">{p.stack.map((s) => <Chip key={s}>{s}</Chip>)}</div>
       <div className="mt-4 flex flex-col gap-1.5">
         <Btn variant="primary" onClick={() => openApp("portfolio", { select: p.id })}><AppIcons.portfolio className="h-4 w-4" /> Open in Portfolio</Btn>
+        {p.url && <LinkBtn href={p.url}><Glyph.external /> {linkLabel(p.url)}</LinkBtn>}
         {p.github && <LinkBtn href={p.github}><AppIcons.github className="h-4 w-4" /> View on GitHub</LinkBtn>}
         {sample && <Btn onClick={() => openApp("vscode", { file: sample })}><AppIcons.vscode className="h-4 w-4" /> Open a code sample</Btn>}
       </div>

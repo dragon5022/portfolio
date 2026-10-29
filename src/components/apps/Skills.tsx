@@ -21,7 +21,7 @@ export default function Skills({ win }: AppProps) {
 
       <div className="mb-4 grid gap-2.5 sm:grid-cols-2">
         <Card className="flex items-center gap-3.5"><AppIcons.java className="h-9 w-9" /><div><b className="block text-sm">Java first</b><small className="text-fg-2">JVM backends, Spring, Kafka, performance tuning.</small></div></Card>
-        <Card className="flex items-center gap-3.5"><AppIcons.python className="h-9 w-9" /><div><b className="block text-sm">Python daily</b><small className="text-fg-2">APIs, data pipelines, automation, MLOps.</small></div></Card>
+        <Card className="flex items-center gap-3.5"><AppIcons.python className="h-9 w-9" /><div><b className="block text-sm">Python daily</b><small className="text-fg-2">APIs, background workers, automation, OCR.</small></div></Card>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-1">

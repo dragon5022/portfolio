@@ -4,6 +4,8 @@
    VS Code) renders from this object.
    ========================================================================= */
 
+import type { FlowId } from "./flows";
+
 export type Lang = "web" | "game" | "ai" | "java" | "python";
 
 export interface Project {
@@ -20,8 +22,10 @@ export interface Project {
   /** screenshots under /public (desktop + optional mobile) */
   image?: string;
   imageMobile?: string;
-  /** render a built-in flow diagram in the detail view */
-  flow?: "token-router";
+  /** workflow diagram from src/data/flows.ts, used when there is no screenshot */
+  flow?: FlowId;
+  /** code sample (a codeSamples key) opened from the project */
+  code?: string;
   featured?: boolean;
 }
 
@@ -40,19 +44,19 @@ export const LANG_META: Record<Lang, { label: string; folder: string; icon: "web
 export const PORTFOLIO = {
   name: "dragon5022",
   handle: "dragon5022", // terminal user + GitHub id
-  title: "Full-Stack Developer · Java & Python",
-  tagline: "I build web platforms, mobile games and AI tooling, with Java and Python at the core of my backend work.",
+  title: "Full-Stack & AI Engineer · Java & Python",
+  tagline: "I build AI systems, automated trading bots and full-stack products, with Java and Python at the core of my backend work.",
   location: "Remote · worldwide",
   email: "masterdev09092@gmail.com",
-  whatsapp: "+15738600814",
-  whatsappDisplay: "+1 573 860 0814",
   github: "https://github.com/dragon5022",
   linkedin: "", // leave empty to hide
   avatar: "/avatar.png",
 
   bio: [
-    "A full-stack developer who has shipped production work for studios and startups around the world: luxury fitness platforms, design-studio showcases, a rental marketplace, a national broadcaster, and an AI observability company.",
-    "On the backend I live in Java (Spring Boot, Kafka, JPA) and Python (FastAPI, Django, data pipelines). On the frontend I ship Next.js, React and WebGL experiences. I have also built and operated mobile apps and real-money casino games, including the DominoClub platform.",
+    "A full-stack and AI engineer who has shipped production work for businesses around the world: a buyback and resale platform in Japan, the website and CRM of a Brazilian hotel group, a real-money domino game, a soccer management game on the App Store, and a solar electrician's site in Australia.",
+    "In AI engineering I take LLM features from prototype to production: RAG pipelines with embeddings, pgvector and re-ranking; tool-calling agents with structured outputs; OCR and document extraction; and evals and guardrails that keep answers reliable. I work across the OpenAI, Anthropic and Gemini APIs and serve models behind FastAPI with queues and background workers.",
+    "For trading I build automated bots for crypto and stock markets: exchange connectivity over REST and WebSocket (CCXT and native APIs), real-time market data and order books, strategy engines in async Python, backtesting and paper trading on historical data, and risk controls such as position limits, stop-losses and a kill switch. Bots run 24/7 in Docker, store tick data in PostgreSQL / TimescaleDB and send Telegram alerts on fills and errors.",
+    "Across the full stack I ship products end to end: Java (Spring Boot, Kafka, JPA) and Python (FastAPI, Celery) backends; Next.js, React, TypeScript and WordPress frontends; React Native and iOS apps; and PostgreSQL, Redis, Docker, Kubernetes and CI/CD on AWS and Vercel to run them.",
     "My own product is an AI Token Router: a gateway that sits in front of LLM APIs and cuts token usage by 40–70% through semantic caching, context compression and smart model routing, without changing the apps that call it.",
   ],
 
@@ -103,6 +107,117 @@ export const PORTFOLIO = {
 
   projects: [
     {
+      id: "buyersbox",
+      name: "BuyersBox",
+      lang: "web",
+      year: 2025,
+      role: "Full-stack developer",
+      stack: ["WordPress", "PHP", "MySQL", "Google Maps", "LINE", "JavaScript"],
+      summary: "Buyback and resale platform for Powerful Trade Center (パワフルトレードセンター), a Sapporo chain that buys a huge range of electric cable, power tools and building materials: three stores, store maps and free pickup anywhere in Hokkaido.",
+      highlights: [
+        "Catalogue of 20+ buyback categories (VVF and CV cable, new and used power tools, generators, building and electrical materials, appliances) with a live “latest buyback” feed from each store.",
+        "Store pages for the three Sapporo shops with Google Maps, directions and opening hours.",
+        "Deli-Power on-site pickup (出張買取): customers book a free visit anywhere in Hokkaido.",
+        "Instant quotes by phone and LINE, customer voices and news, all run from a custom WordPress theme with SEO built in.",
+      ],
+      url: "https://www.buyersbox.co.jp/",
+      image: "/portfolio/buyersbox.jpg",
+      imageMobile: "/portfolio/buyersbox-mobile.jpg",
+      featured: true,
+    },
+    {
+      id: "buyersbox-writer",
+      name: "BuyersBox Auto Writer",
+      lang: "python",
+      year: 2025,
+      role: "Backend developer · architecture, API, workers",
+      stack: ["Python", "FastAPI", "Celery", "Redis", "PostgreSQL", "LLM API", "WordPress REST API", "Docker"],
+      summary: "Python system that writes and publishes articles for buyersbox.co.jp automatically: a FastAPI backend creates jobs, and separate workers draft, check and post each article to the WordPress shop through its API.",
+      highlights: [
+        "Split into a light FastAPI backend (jobs, review, status) and separate worker processes, so heavy generation never slows the API or the shop.",
+        "Workers collect store and buyback data, draft the article with an LLM using brand templates, then check the title, meta description, links and images for SEO.",
+        "Publishes through the WordPress REST API with categories and a featured image, as a draft for review or as a scheduled post.",
+        "Redis queue with retries and a publish log in PostgreSQL; add workers to publish more.",
+      ],
+      flow: "buyersbox-writer",
+      code: "publish_worker.py",
+      featured: true,
+    },
+    {
+      id: "grupowish",
+      name: "Grupo Wish",
+      lang: "web",
+      year: 2025,
+      role: "Full-stack developer · live site & CRM",
+      stack: ["Duda", "JavaScript", "jQuery", "Omnibees booking engine", "Asksuite chat", "CRM"],
+      summary: "Live website and CRM for Grupo Wish, a Brazilian group of 11 hotels and resorts: a booking bar on every page, promotions and events, the My Wish loyalty programme, and guest data flowing into the CRM.",
+      highlights: [
+        "Booking bar (hotel, dates, guests, coupon) connected to the Omnibees reservation engine for all 11 properties.",
+        "Hotel, promotion and event pages for resorts in Foz do Iguaçu, Gramado, Natal, Salvador and more.",
+        "CRM: reservation leads, chat conversations and My Wish sign-ups land in guest profiles for campaigns and follow-up.",
+        "Online check-in (FNRH), ESG and travel-tips sections, cookie consent and analytics.",
+      ],
+      url: "https://www.grupowish.com/",
+      image: "/portfolio/grupowish.jpg",
+      imageMobile: "/portfolio/grupowish-mobile.jpg",
+      featured: true,
+    },
+    {
+      id: "dominoclub",
+      name: "DominoClub",
+      lang: "game",
+      year: 2026,
+      role: "Lead developer · game app, matchmaking, payments",
+      stack: ["React Native (Expo)", "TypeScript", "WebSocket", "Node.js", "PostgreSQL", "Pix payments", "WordPress"],
+      summary: "Competitive domino arena for Brazil on the web and on mobile: play real people 1v1 or 2v2, free or for prizes, with integrated Pix payments, rankings, leagues and tournaments.",
+      highlights: [
+        "One Expo / React Native codebase for the browser game and the Android app.",
+        "Real-time 1v1 and 2v2 tables over WebSocket, with rankings, weekly tournaments and leagues.",
+        "Integrated Pix deposits and prize withdrawals, with identity verification, anti-fraud monitoring and account protection.",
+        "WordPress landing site with rules, scoring guide and the launch campaign (official launch on 23 October 2026).",
+      ],
+      url: "https://dominoclub.com.br/",
+      image: "/portfolio/dominoclub.jpg",
+      featured: true,
+    },
+    {
+      id: "soccer-manager",
+      name: "High School Soccer Manager",
+      lang: "game",
+      year: 2026,
+      role: "Game developer",
+      stack: ["iOS & iPadOS", "3D match engine", "Simulation", "6 languages"],
+      summary: "Youth-football management game on the Japanese App Store (高校サッカーマネージャー): coach a high-school team or a pro academy in Japan, Korea, England, Spain or Germany, develop players and chase national titles. Paid app, no ads.",
+      highlights: [
+        "Five countries, each with its own calendar, competitions, school years, player names and stadiums.",
+        "Weekly training plans, growth types (early, normal, late bloomer), hidden potential and unique abilities that stay on record after graduation.",
+        "11-a-side matches simulated from tactics and line-up, watched from TV, overhead or dynamic cameras, or skipped straight to the result.",
+        "Released on 4 August 2026 with regular updates since; available in English, French, German, Japanese, Korean and Spanish.",
+      ],
+      url: "https://apps.apple.com/jp/app/id6789682404",
+      image: "/portfolio/soccer-manager.jpg",
+      featured: true,
+    },
+    {
+      id: "sunnydays",
+      name: "Sunny Days Electrical",
+      lang: "web",
+      year: 2025,
+      role: "Full-stack developer",
+      stack: ["WordPress", "Elementor Pro", "PHP", "Gravity Forms", "Google Reviews", "Cloudflare"],
+      summary: "Website for a residential and solar electrician on the NSW South Coast (Shoalhaven Heads, Berry, Gerringong): services, local landing pages, project gallery, quote forms and live Google reviews.",
+      highlights: [
+        "Elementor Pro build with service and location landing pages for local search.",
+        "Solar calculator that helps visitors size a system before they ask for a quote.",
+        "Gravity Forms quote and contact forms, with click-to-call on every page.",
+        "Live 5-star Google reviews widget and an “Our Work” gallery, served through Cloudflare.",
+      ],
+      url: "https://sunnydayselectrical.com.au/",
+      image: "/portfolio/sunnydays.jpg",
+      imageMobile: "/portfolio/sunnydays-mobile.jpg",
+      featured: true,
+    },
+    {
       id: "token-router",
       name: "AI Token Router",
       lang: "ai",
@@ -118,216 +233,109 @@ export const PORTFOLIO = {
       ],
       github: "https://github.com/dragon5022",
       flow: "token-router",
+      code: "token_router.py",
       featured: true,
     },
     {
-      id: "dominoclub",
-      name: "DominoClub",
-      lang: "game",
-      year: 2024,
-      role: "Lead developer · game client, matchmaking, payments",
-      stack: ["Unity", "C#", "Node.js", "WebSocket", "PostgreSQL", "Pix payments"],
-      summary: "Real-money competitive domino platform for Brazil (dominoclub.com.br): mobile game client, real-time tables, tournaments and instant Pix deposits.",
-      highlights: [
-        "Authoritative game server with real-time WebSocket tables, reconnection and anti-fraud controls.",
-        "Matchmaking, ranked ladders and tournaments; bots fill tables during low traffic.",
-        "Pix integration for deposits and withdrawals with KYC and 18+ verification.",
-        "One of 12 mobile casino / card games I have shipped to the stores.",
-      ],
-      url: "https://dominoclub.com.br/",
-      image: "/portfolio/dominoclub.jpg",
-      imageMobile: "/portfolio/dominoclub-mobile.jpg",
-      featured: true,
-    },
-    {
-      id: "formapilates",
-      name: "Forma Pilates",
-      lang: "web",
+      id: "doculens",
+      name: "DocuLens OCR",
+      lang: "ai",
       year: 2025,
-      role: "Full-stack developer",
-      stack: ["Next.js", "React", "TypeScript", "Video streaming", "Subscriptions"],
-      summary: "Luxury in-studio and online Pilates platform: 1,000+ on-demand workouts, guided programs, memberships and studio booking.",
+      role: "Backend & ML developer",
+      stack: ["Python", "OpenCV", "PaddleOCR", "Tesseract", "FastAPI", "PostgreSQL", "S3"],
+      summary: "OCR system that turns photos, scans and PDFs of invoices, receipts and forms into validated, structured data, with a review queue for low-confidence fields.",
       highlights: [
-        "Subscription paywall and free-trial funnel with Stripe-style billing.",
-        "On-demand video library with programs, filters and progress tracking.",
-        "Editorial landing pages with press features (Vogue, NYT, Forbes).",
-      ],
-      url: "https://formapilates.co/",
-      image: "/portfolio/formapilates.jpg",
-      imageMobile: "/portfolio/formapilates-mobile.jpg",
-      featured: true,
-    },
-    {
-      id: "lue-studio",
-      name: "Lué Studio",
-      lang: "web",
-      year: 2025,
-      role: "Creative front-end developer",
-      stack: ["Next.js", "Tailwind CSS", "PixiJS", "GSAP", "Shaders"],
-      summary: "Award-style showcase site for a design & development studio: animated sky, clouds and typography built with WebGL and scroll-driven motion.",
-      highlights: [
-        "PixiJS / shader-driven cloud and moon scene that stays smooth on mobile.",
-        "Scroll-linked storytelling with GSAP timelines and custom easing.",
-        "Fully responsive art direction down to small phones.",
-      ],
-      url: "https://lue.studio/",
-      image: "/portfolio/lue-studio.jpg",
-      imageMobile: "/portfolio/lue-studio-mobile.jpg",
-      featured: true,
-    },
-    {
-      id: "nabo",
-      name: "Nabo",
-      lang: "web",
-      year: 2024,
-      role: "Full-stack & mobile developer",
-      stack: ["Next.js", "React Native", "Node.js", "PostgreSQL", "Maps / geolocation"],
-      summary: "Social network meets rental marketplace: rent what you need, lend what you don't, inside your neighbourhood. Web landing plus iOS & Android apps.",
-      highlights: [
-        "Marketplace listings with daily pricing, availability calendar and secure checkout.",
-        "Neighbourhood feed, messaging and trust/rating system.",
-        "Shared TypeScript domain models between web, API and mobile apps.",
-      ],
-      url: "https://www.nabo.ing/",
-      image: "/portfolio/nabo.jpg",
-      imageMobile: "/portfolio/nabo-mobile.jpg",
-      featured: true,
-    },
-    {
-      id: "france-tv",
-      name: "france.tv",
-      lang: "web",
-      year: 2024,
-      role: "Front-end developer (contract)",
-      stack: ["Next.js", "Vue", "TypeScript", "Video players", "Accessibility"],
-      summary: "Replay and live streaming portal of France Télévisions: catalogue, live channels, editorial rails and personalised recommendations.",
-      highlights: [
-        "High-traffic, SEO-critical pages with server rendering and edge caching.",
-        "Accessible (RGAA) components for rails, carousels and players.",
-        "Performance budgets enforced in CI for Core Web Vitals.",
-      ],
-      url: "https://www.france.tv/",
-      image: "/portfolio/france-tv.jpg",
-      imageMobile: "/portfolio/france-tv-mobile.jpg",
-      featured: true,
-    },
-    {
-      id: "adaline",
-      name: "Adaline",
-      lang: "web",
-      year: 2025,
-      role: "Front-end developer",
-      stack: ["Next.js", "Three.js", "TypeScript", "Motion"],
-      summary: "Marketing site for Adaline, an observability and evals platform for self-improving AI agents, with a 3D hero and documentation-driven content.",
-      highlights: [
-        "Three.js hero scene with graceful fallback when WebGL is unavailable.",
-        "Design-system components shared with the product UI.",
-        "Lighthouse 95+ on mobile despite 3D and motion.",
-      ],
-      url: "https://www.adaline.ai/",
-      image: "/portfolio/adaline.jpg",
-      imageMobile: "/portfolio/adaline-mobile.jpg",
-      featured: true,
-    },
-    {
-      id: "ledgerflow",
-      name: "LedgerFlow",
-      lang: "java",
-      year: 2025,
-      stack: ["Java 21", "Spring Boot 3", "Kafka", "PostgreSQL", "Docker"],
-      summary: "Event-sourced double-entry ledger service processing 4k transactions/sec with exactly-once semantics.",
-      highlights: [
-        "Designed an append-only event store on PostgreSQL with snapshotting every 500 events.",
-        "Idempotent Kafka consumers with outbox pattern; zero duplicate postings across 3 regions.",
-        "p99 latency dropped from 210 ms to 38 ms after moving hot paths to virtual threads.",
+        "Pre-processing with OpenCV (deskew, denoise, crop, contrast) before recognition.",
+        "Japanese and English text recognition with PaddleOCR, falling back to Tesseract.",
+        "Field extraction for dates, totals, tax and IDs from layout analysis plus rules, with a confidence score per field.",
+        "Review screen shows low-confidence fields next to the original image; approved results go out as JSON or CSV.",
       ],
       github: "https://github.com/dragon5022",
+      flow: "doculens",
     },
     {
-      id: "pyquery-lab",
-      name: "PyQuery Lab",
-      lang: "python",
-      year: 2025,
-      stack: ["Python 3.12", "FastAPI", "Pandas", "DuckDB", "React"],
-      summary: "Self-hosted analytics workbench that turns CSV/Parquet drops into shareable dashboards.",
-      highlights: [
-        "Streaming ingestion with async generators keeps memory flat on 20 GB files.",
-        "DuckDB query planner integration gave 12x faster aggregations vs. Pandas-only baseline.",
-        "Plugin system lets teams register custom transforms as plain Python functions.",
-      ],
-      github: "https://github.com/dragon5022",
-    },
-    {
-      id: "shieldgate",
-      name: "ShieldGate",
-      lang: "java",
-      year: 2024,
-      stack: ["Java 17", "Spring Cloud Gateway", "Redis", "OAuth2", "Grafana"],
-      summary: "API gateway with adaptive rate limiting, JWT validation, and per-tenant quota dashboards.",
-      highlights: [
-        "Token-bucket limiter backed by Redis Lua scripts; sub-millisecond decisions.",
-        "Circuit breakers via Resilience4j cut cascading failures during upstream incidents.",
-        "Built OpenTelemetry tracing across 11 downstream services.",
-      ],
-      github: "https://github.com/dragon5022",
-    },
-    {
-      id: "scrapewise",
-      name: "ScrapeWise",
+      id: "routemate",
+      name: "RouteMate",
       lang: "python",
       year: 2024,
-      stack: ["Python", "Scrapy", "Playwright", "Celery", "PostgreSQL"],
-      summary: "Distributed web-scraping platform with polite crawling, proxy rotation, and schema validation.",
+      role: "Backend developer",
+      stack: ["Python", "FastAPI", "OR-Tools", "PostgreSQL + PostGIS", "Google Maps Platform", "WebSocket", "Redis"],
+      summary: "Delivery and pickup dispatch backend: geocodes requests, plans daily routes with time windows and van capacity, assigns drivers and streams live ETAs to customers.",
       highlights: [
-        "Pydantic schemas validate 2M records/day; invalid rows quarantined with diffs.",
-        "Playwright workers render JS-heavy pages only when static fetch fails (saves 70% compute).",
-        "Celery beat schedules per-domain crawl budgets to respect robots.txt crawl delays.",
+        "Requests from web, LINE and phone are geocoded with Google Maps and checked against the service area.",
+        "Daily routes solved with OR-Tools (time windows, capacity) using traffic-aware travel times.",
+        "Driver app receives its jobs and streams GPS over WebSocket; ETAs update as the day goes.",
+        "Customers get SMS or LINE notices on the way, on arrival and with a delivery photo.",
       ],
       github: "https://github.com/dragon5022",
+      flow: "routemate",
     },
     {
-      id: "jvm-insight",
-      name: "JVM Insight",
+      id: "stocksync",
+      name: "StockSync",
+      lang: "python",
+      year: 2024,
+      role: "Backend developer",
+      stack: ["Python", "FastAPI", "Celery", "Redis", "PostgreSQL", "Pandas"],
+      summary: "Inventory and price sync service that keeps store POS, warehouse and online marketplaces on one stock ledger, so items are never sold twice.",
+      highlights: [
+        "One ingest API for POS sales, warehouse scans, supplier price lists and marketplace orders, with idempotency keys.",
+        "SKU and JAN-code mapping, unit and price rules, and deduplication across channels.",
+        "Stock is reserved the moment an order arrives, then pushed to every channel within its API rate limits.",
+        "Streaming imports keep memory flat on large supplier files; alerts fire on oversell risk or a failing feed.",
+      ],
+      github: "https://github.com/dragon5022",
+      flow: "stocksync",
+      code: "pipeline.py",
+    },
+    {
+      id: "commercecore",
+      name: "CommerceCore",
+      lang: "java",
+      year: 2024,
+      role: "Backend lead",
+      stack: ["Java 21", "Spring Boot 3", "Spring Cloud Gateway", "Kafka", "PostgreSQL", "Redis", "Elasticsearch", "Kubernetes"],
+      summary: "Large e-commerce backend: six Spring Boot microservices behind an API gateway, linked by Kafka events, covering catalogue, orders, inventory, payments, shipping and customers.",
+      highlights: [
+        "Spring Cloud Gateway in front of every client, with JWT auth, per-client rate limits and routing.",
+        "Each service owns its PostgreSQL schema and scales on its own in Kubernetes.",
+        "Transactional outbox publishes domain events to Kafka; search, notifications and analytics consume them.",
+        "Inventory reserved in parallel on virtual threads at checkout; tracing with OpenTelemetry across all services.",
+      ],
+      github: "https://github.com/dragon5022",
+      flow: "commercecore",
+      code: "OrderService.java",
+    },
+    {
+      id: "ledgercore",
+      name: "LedgerCore",
       lang: "java",
       year: 2023,
-      stack: ["Java", "JFR", "JavaFX", "Gradle"],
-      summary: "Desktop tool that visualizes Java Flight Recorder files: GC pauses, allocation hot spots, lock contention.",
+      role: "Backend developer",
+      stack: ["Java 21", "Spring Boot 3", "Spring Batch", "PostgreSQL", "Kafka", "Testcontainers"],
+      summary: "Payments ledger and settlement engine: idempotent payment API, append-only double-entry journal, nightly settlement batches and bank reconciliation.",
       highlights: [
-        "Parses 1 GB JFR dumps in under 6 seconds using memory-mapped streams.",
-        "Flame graphs rendered on a JavaFX canvas with smooth zoom/pan.",
-        "Shipped as a native image with jpackage for Windows, macOS, and Linux.",
+        "Idempotency keys and signed webhooks, so provider retries never post a payment twice.",
+        "Append-only double-entry journal; account balances are derived from entries, never edited.",
+        "Spring Batch jobs compute fees, payouts and merchant statements every night.",
+        "Reconciliation matches bank statement lines to ledger entries and sends gaps to an exceptions desk.",
       ],
       github: "https://github.com/dragon5022",
-    },
-    {
-      id: "mlops-kit",
-      name: "MLOps Kit",
-      lang: "python",
-      year: 2023,
-      stack: ["Python", "scikit-learn", "MLflow", "Docker", "GitHub Actions"],
-      summary: "Opinionated template for training, versioning, and serving ML models with reproducible pipelines.",
-      highlights: [
-        "One command trains, evaluates, and registers a model in MLflow.",
-        "Serving image built with multi-stage Docker; cold start under 900 ms.",
-        "Drift monitoring job alerts to Slack when feature distributions shift.",
-      ],
-      github: "https://github.com/dragon5022",
+      flow: "ledgercore",
     },
   ] as Project[],
 
   timeline: [
+    { date: "2026-10-23", text: "DominoClub officially launches in Brazil, on the web and Android" },
+    { date: "2026-08-04", text: "High School Soccer Manager released on the Japanese App Store" },
     { date: "2025-09-15", text: "AI Token Router reaches 40–70% token savings in production" },
-    { date: "2025-06-02", text: "Launched Forma Pilates online platform" },
-    { date: "2025-03-10", text: "Lué Studio and Adaline sites go live" },
-    { date: "2024-10-01", text: "DominoClub launches in Brazil" },
-    { date: "2024-04-12", text: "Shipped Nabo web + mobile apps; france.tv contract" },
   ],
 
   /* Files shown inside the VS Code app */
   codeSamples: {
     "OrderService.java": {
       lang: "java",
-      code: `package dev.dragon.ledgerflow.order;
+      code: `package dev.dragon.commercecore.order;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -434,9 +442,67 @@ async def chat(payload: dict) -> dict:
         usage=Usage(result.prompt_tokens, result.completion_tokens, saved)
     )`,
     },
+    "publish_worker.py": {
+      lang: "python",
+      code: `"""BuyersBox Auto Writer - worker (simplified).
+
+The FastAPI backend only records a job and enqueues it. This separate worker
+does the heavy work, so the API and the shop stay fast:
+  collect shop data -> draft with an LLM -> SEO checks -> publish to WordPress.
+"""
+from __future__ import annotations
+
+import os
+
+import httpx
+from celery import Celery
+
+from writer.data import collect_context
+from writer.draft import draft_article
+from writer.jobs import Jobs
+from writer.seo import check_seo
+
+celery = Celery("writer", broker=os.environ["REDIS_URL"])
+WP_API = "https://www.buyersbox.co.jp/wp-json/wp/v2"
+WP_AUTH = (os.environ["WP_USER"], os.environ["WP_APP_PASSWORD"])  # WordPress application password
+
+
+@celery.task(bind=True, max_retries=3, default_retry_delay=60)
+def write_and_publish(self, job_id: str) -> str:
+    job = Jobs.get(job_id)
+    try:
+        context = collect_context(job.topic, store=job.store)     # latest buyback items, prices, store info
+        article = draft_article(job.topic, context, style="brand")  # LLM + brand templates
+        if problems := check_seo(article):                        # title length, meta, links, images
+            Jobs.needs_review(job_id, problems)
+            return "review"
+
+        res = httpx.post(f"{WP_API}/posts", auth=WP_AUTH, timeout=30, json={
+            "title": article.title,
+            "content": article.html,
+            "excerpt": article.meta_description,
+            "categories": article.category_ids,
+            "featured_media": upload_image(article.image_path),
+            "status": "draft" if job.review_first else "publish",
+        })
+        res.raise_for_status()
+        Jobs.published(job_id, url=res.json()["link"])
+        return "published"
+    except httpx.HTTPError as exc:
+        Jobs.failed(job_id, str(exc))
+        raise self.retry(exc=exc)
+
+
+def upload_image(path: str) -> int:
+    with open(path, "rb") as f:
+        res = httpx.post(f"{WP_API}/media", auth=WP_AUTH, timeout=60, content=f.read(),
+                         headers={"Content-Disposition": f'attachment; filename="{os.path.basename(path)}"'})
+    res.raise_for_status()
+    return res.json()["id"]`,
+    },
     "RateLimiter.java": {
       lang: "java",
-      code: `package dev.dragon.shieldgate.limit;
+      code: `package dev.dragon.commercecore.gateway;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -480,7 +546,7 @@ public final class RateLimiter {
     },
     "pipeline.py": {
       lang: "python",
-      code: `"""Streaming CSV -> Parquet pipeline used in PyQuery Lab."""
+      code: `"""Streaming supplier CSV -> Parquet import used in StockSync."""
 from __future__ import annotations
 
 import asyncio
@@ -558,11 +624,14 @@ Welcome to my desktop. Double-click the icons or open the Start menu.
 - **Skills** – the stack I use every day
 - **Terminal** – type \`help\` (try \`portfolio\`, \`java -version\`, \`neofetch\`)
 - **VS Code** – real snippets, including the AI Token Router pipeline
-- **Contact** – email, WhatsApp, GitHub
+- **Contact** – email, GitHub
 
-GitHub: github.com/dragon5022 · Email: masterdev09092@gmail.com · WhatsApp: +1 573 860 0814`,
+GitHub: github.com/dragon5022 · Email: masterdev09092@gmail.com`,
     },
   } as Record<string, CodeSample>,
 };
 
 export type Portfolio = typeof PORTFOLIO;
+
+/** button label for a project's public link */
+export const linkLabel = (url: string) => (url.includes("apps.apple.com") ? "App Store" : "Live site");

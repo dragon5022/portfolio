@@ -109,8 +109,8 @@ export default function StartMenu() {
       )}
 
       <footer className="mt-auto flex h-16 items-center justify-between rounded-b-lg border-t border-line bg-black/15 px-5 sm:px-12 [html[data-theme=light]_&]:bg-black/4">
-        <button type="button" onClick={() => openApp("about")} className="flex items-center gap-3 rounded px-2.5 py-1.5 text-[13px] font-medium hover:bg-hover">
-          <Avatar size={32} /> <span>{state.user.name}</span>
+        <button type="button" onClick={() => openApp("settings", { page: "accounts" })} title="Your GitHub account" className="flex min-w-0 items-center gap-3 rounded px-2.5 py-1.5 text-[13px] font-medium hover:bg-hover">
+          <Avatar size={32} person={state.visitor} /> <span className="truncate">{state.visitor?.name ?? "Guest"}</span>
         </button>
         <div className="relative">
           <button type="button" title="Power" onClick={() => setPower((p) => !p)} className="grid h-10 w-10 place-items-center rounded text-lg hover:bg-hover"><Glyph.power /></button>

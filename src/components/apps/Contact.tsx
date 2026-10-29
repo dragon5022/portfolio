@@ -24,7 +24,6 @@ export default function Contact() {
 
   const links = [
     { label: "Email", sub: PORTFOLIO.email, href: `mailto:${PORTFOLIO.email}`, icon: <Glyph.mail className="text-xl text-accent" /> },
-    { label: "WhatsApp", sub: PORTFOLIO.whatsappDisplay, href: `https://wa.me/${PORTFOLIO.whatsapp.replace(/\D/g, "")}`, icon: <AppIcons.whatsapp className="h-5 w-5" /> },
     { label: "GitHub", sub: PORTFOLIO.github.replace("https://", ""), href: PORTFOLIO.github, icon: <AppIcons.github className="h-5 w-5" /> },
     ...(PORTFOLIO.linkedin ? [{ label: "LinkedIn", sub: PORTFOLIO.linkedin.replace("https://www.", ""), href: PORTFOLIO.linkedin, icon: <AppIcons.linkedin className="h-5 w-5" /> }] : []),
   ];
@@ -32,7 +31,7 @@ export default function Contact() {
   return (
     <Page>
       <H2>Let&apos;s talk</H2>
-      <P>Open to full-stack and backend roles, contract work, game and app projects, and AI tooling. Email or WhatsApp me and I usually reply within a day.</P>
+      <P>Open to full-stack and backend roles, AI engineering, trading bot development, contract work, and game and app projects. Email me and I usually reply within a day.</P>
       <div className="grid gap-5 md:grid-cols-[1fr_260px]">
         <form onSubmit={submit}>
           <div className="grid gap-x-3 sm:grid-cols-2">
@@ -57,7 +56,7 @@ export default function Contact() {
             <AppIcons.guestbook className="h-5 w-5" /><span><span className="block text-[13px]">Guestbook</span><small className="text-[11px] text-fg-3">Leave a public review or message</small></span>
           </button>
           <div className="mt-4 rounded-lg border border-line bg-surface px-3.5 py-3 text-xs text-fg-2">
-            <b className="mb-1 block text-fg">{PORTFOLIO.location}</b>Available for remote work in any time zone. Fastest reply on WhatsApp.
+            <b className="mb-1 block text-fg">{PORTFOLIO.location}</b>Available for remote work in any time zone. Fastest reply by email.
           </div>
         </div>
       </div>

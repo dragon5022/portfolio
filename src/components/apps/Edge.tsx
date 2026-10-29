@@ -10,7 +10,6 @@ export default function Edge() {
 
   const quick = [
     { label: "GitHub", href: PORTFOLIO.github, icon: <AppIcons.github className="h-7 w-7" /> },
-    { label: "WhatsApp", href: `https://wa.me/${PORTFOLIO.whatsapp.replace(/\D/g, "")}`, icon: <AppIcons.whatsapp className="h-7 w-7" /> },
     { label: "Email", href: `mailto:${PORTFOLIO.email}`, icon: <AppIcons.contact className="h-7 w-7" /> },
     { label: "Portfolio", onClick: () => openApp("portfolio"), icon: <AppIcons.portfolio className="h-7 w-7" /> },
     { label: "Skills", onClick: () => openApp("skills"), icon: <AppIcons.skills className="h-7 w-7" /> },
@@ -34,7 +33,7 @@ export default function Edge() {
       <div className="flex-1 overflow-auto bg-surface-2">
         <div className="mx-auto max-w-[720px] px-5 py-10 text-center">
           <div className="flex h-11 items-center gap-2.5 rounded-full border border-line-strong bg-surface px-4 text-fg-3 shadow-pop"><Glyph.search /> Search the web</div>
-          <div className="mt-7 grid grid-cols-3 gap-2.5 sm:grid-cols-6">
+          <div className="mt-7 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
             {quick.map((q) => q.href ? (
               <a key={q.label} href={q.href} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-2 rounded-lg border border-line bg-surface px-1.5 py-3.5 text-xs text-fg hover:bg-surface-3">{q.icon}{q.label}</a>
             ) : (

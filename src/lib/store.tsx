@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from "react";
 import { APP_META, type AppId } from "@/lib/apps";
 import { PORTFOLIO } from "@/data/portfolio";
+import type { GitHubProfile } from "@/lib/github";
 
 /* ---------- Types ---------- */
 export type Phase = "boot" | "lock" | "desktop" | "shutdown" | "restart" | "bsod";
@@ -33,7 +34,10 @@ export interface OSState {
   accent: string;
   windows: Win[];
   zTop: number;
+  /** the portfolio owner */
   user: UserInfo;
+  /** whoever signed in on the lock screen with their GitHub username */
+  visitor: GitHubProfile | null;
   notifications: Notification[];
   snapPreview: Rect | null;
   startOpen: boolean;
@@ -56,6 +60,7 @@ export type Action =
   | { type: "MINIMIZE_ALL" }
   | { type: "CLOSE_ALL" }
   | { type: "USER"; user: Partial<UserInfo> }
+  | { type: "VISITOR"; visitor: GitHubProfile | null }
   | { type: "NOTIFY"; title: string; body: string; icon?: AppId }
   | { type: "TOAST_DONE"; id: number }
   | { type: "CLEAR_NOTIFS" }
@@ -70,7 +75,7 @@ export type Action =
 let notifSeq = 1;
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 860;
 
-function initials(name: string) {
+export function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((s) => s[0]!.toUpperCase()).join("");
 }
 
@@ -159,6 +164,8 @@ function reducer(state: OSState, a: Action): OSState {
       return { ...state, windows: [] };
     case "USER":
       return { ...state, user: { ...state.user, ...a.user } };
+    case "VISITOR":
+      return { ...state, visitor: a.visitor };
     case "NOTIFY": {
       const n: Notification = {
         id: notifSeq++, title: a.title, body: a.body, icon: a.icon, toast: true,
@@ -205,6 +212,7 @@ function initialState(): OSState {
     windows: [],
     zTop: 10,
     user: { name: PORTFOLIO.name, handle: PORTFOLIO.handle, avatar: PORTFOLIO.avatar || null },
+    visitor: null,
     notifications: [],
     snapPreview: null,
     startOpen: false,
